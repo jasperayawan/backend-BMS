@@ -7,7 +7,9 @@ const cors = require("cors")
 const conn = require("./db");
 
 const authAdmin = require("./routes/admin.route")
-const resetPassRoute = require('./routes/resetPass.route')
+const resetPassRoute = require('./routes/resetPass.route');
+const csrfProtection = require("./middleware/middleware");
+
 
 
 const app = express();
@@ -15,6 +17,7 @@ dotenv.config();
 
 const port = process.env.PORT
 
+// app.use(csrfProtection);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
