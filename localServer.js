@@ -9,6 +9,7 @@ const conn = require("./db");
 const authAdmin = require("./routes/admin.route")
 const resetPassRoute = require('./routes/resetPass.route');
 const userRoute = require('./routes/user.route')
+const organizationRoute = require('./routes/organization')
 const csrfProtection = require("./middleware/middleware");
 
 
@@ -52,6 +53,7 @@ app.use("/dashboard", dashboardConfig)
 app.use('/api/admin', authAdmin)
 app.use('/api/resetpass', resetPassRoute)
 app.use('/api/user', userRoute)
+app.use('/api/organization', organizationRoute)
 
 app.listen(port, () => {
     conn();

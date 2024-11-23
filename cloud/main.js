@@ -1,3 +1,11 @@
+const cloudinary = require("cloudinary")
+
+cloudinary.config({
+  cloud_name: 'dxp5dv6ut',
+  api_key: '466854698258958',
+  api_secret: 'u7fEx27OyFit-9qhShHYzFt0SAU',
+})
+
 Parse.Cloud.define("getUsers", async (request) => {
     try {
       const query = new Parse.Query(Parse.User);
@@ -63,5 +71,33 @@ Parse.Cloud.define("getUsers", async (request) => {
       throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, error.message);
     }
   });
+
+
+
+
+Parse.Cloud.define('addOrUpdateMember', async (request) => {
+    const { id, name, role, image } = request.params;
+  
+    let TeamMember = Parse.Object.extend('Organization');
+    let teamMember = new TeamMember();
+  
+    if (id) {
+      const query = new Parse.Query(TeamMember);
+      teamMember = await query.get(id);
+    }
+  
+    // Set the properties
+    teamMember.set('name', name);
+    teamMember.set('role', role);
+
+    if(image){
+        const imageResult = await cloudinary.uploader.upload(image);
+        teamMember.set("image", imageResult.secure_url);
+      }
+  
+    await teamMember.save();
+    return { success: true, message: 'Member saved successfully.' };
+  });
+  
   
   
