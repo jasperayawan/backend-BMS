@@ -8,6 +8,7 @@ const conn = require("./db");
 
 const authAdmin = require("./routes/admin.route")
 const resetPassRoute = require('./routes/resetPass.route');
+const userRoute = require('./routes/user.route')
 const csrfProtection = require("./middleware/middleware");
 
 
@@ -17,11 +18,9 @@ dotenv.config();
 
 const port = process.env.PORT
 
-// app.use(csrfProtection);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors({
     origin: 'http://localhost:5173'
 }))
@@ -29,16 +28,17 @@ app.use(cors({
 
 const api = new ParseServer({
     databaseURI: process.env.MONGODB_URI,
-    appId: "123",
+    appId: "app_barangaysystem_xmP5S0OBWpQPtloue4Zr7bz15Yo7BPjg",
     masterKey: '1234',
     serverURL: `http://localhost:${port}/parse`,
     appName: "Barangay-system",
+    cloud: './cloud/main.js'
 })
 
 const dashboardConfig = new ParseDashboard({
     apps: [
         {
-            appId: "123",
+            appId: "app_barangaysystem_xmP5S0OBWpQPtloue4Zr7bz15Yo7BPjg",
             masterKey: '1234',
             serverURL: `http://localhost:${port}/parse`,
             appName: "Barangay-system",
@@ -51,6 +51,7 @@ app.use("/parse", api.app);
 app.use("/dashboard", dashboardConfig)
 app.use('/api/admin', authAdmin)
 app.use('/api/resetpass', resetPassRoute)
+app.use('/api/user', userRoute)
 
 app.listen(port, () => {
     conn();

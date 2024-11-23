@@ -1,3 +1,12 @@
+const cloudinary = require("cloudinary")
+
+cloudinary.config({
+  cloud_name: 'dxp5dv6ut',
+  api_key: '466854698258958',
+  api_secret: 'u7fEx27OyFit-9qhShHYzFt0SAU',
+})
+
+
 const createRole = async (roleName, user) => {
     try {
       // Use master key to bypass ACLs
@@ -32,7 +41,7 @@ const createRole = async (roleName, user) => {
   };
   
   const createUserWithRole = async (req, res) => {
-    const { username, email, password, role } = req.body;
+    const { profilePicture, name, role, birthdate, age, bloodType, address, contact, email, username, password, status } = req.body;
   
     try {
       // Validate input
@@ -45,6 +54,22 @@ const createRole = async (roleName, user) => {
       user.set('username', username);
       user.set('email', email);
       user.set('password', password);
+      
+      // Add additional fields if available
+      if (name) user.set('name', name);
+      if (role) user.set('role', role);
+      if (birthdate) user.set('birthdate', birthdate);
+      if (age) user.set('age', age);
+      if (bloodType) user.set('bloodType', bloodType);
+      if (address) user.set('address', address);
+      if (contact) user.set('contact', contact);
+      if (status) user.set('status', status);
+
+      if(profilePicture){
+        const imageResult = await cloudinary.uploader.upload(profilePicture);
+        user.set("profilePicture", imageResult.secure_url);
+      }
+      
   
       // Save the user object (using signUp to handle password securely)
       const savedUser = await user.signUp();
