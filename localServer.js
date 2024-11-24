@@ -10,6 +10,9 @@ const authAdmin = require("./routes/admin.route")
 const resetPassRoute = require('./routes/resetPass.route');
 const userRoute = require('./routes/user.route')
 const organizationRoute = require('./routes/organization')
+const contactusRoute = require('./routes/contactus.route')
+const galleryRoute = require('./routes/gallery.route')
+
 const csrfProtection = require("./middleware/middleware");
 
 
@@ -54,6 +57,8 @@ app.use('/api/admin', authAdmin)
 app.use('/api/resetpass', resetPassRoute)
 app.use('/api/user', userRoute)
 app.use('/api/organization', organizationRoute)
+app.use('/api/contactus', contactusRoute)
+app.use('/api/gallery', galleryRoute)
 
 app.listen(port, () => {
     conn();
