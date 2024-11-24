@@ -23,7 +23,6 @@ const createNewServices = async (req, res) => {
     if(imageBase64){
         const imageResult = await cloudinary.uploader.upload(imageBase64);
         service.set("image", imageResult.secure_url);
-    
     }
 
 
