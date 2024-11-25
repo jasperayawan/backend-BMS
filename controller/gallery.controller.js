@@ -1,11 +1,5 @@
 const cloudinary = require("cloudinary");
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: "dxp5dv6ut",
-  api_key: "466854698258958",
-  api_secret: "u7fEx27OyFit-9qhShHYzFt0SAU",
-});
 
 const createNewGallery = async (req, res) => {
   const { galleryName, galleryImage } = req.body;

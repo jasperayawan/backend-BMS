@@ -5,6 +5,7 @@ const ParseDashboard = require("parse-dashboard");
 const bodyParser = require("body-parser");
 const cors = require("cors")
 const conn = require("./db");
+const cloudinary = require("cloudinary");
 
 const authAdmin = require("./routes/admin.route")
 const resetPassRoute = require('./routes/resetPass.route');
@@ -30,6 +31,13 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors({
     origin: 'http://localhost:5173'
 }))
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET,
+});
 
 
 const api = new ParseServer({
