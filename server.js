@@ -76,7 +76,7 @@ app.get('/', (req, res) => {
     res.send("Hello world!!")
 })
 
-app.listen(80, () => {
+app.listen(port, () => {
     conn();
-    console.log("server listening to port: ", 80)
+    console.log("server listening to port: ", port)
 });
