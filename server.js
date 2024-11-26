@@ -72,7 +72,11 @@ app.use('/api/gallery', galleryRoute)
 app.use('/api/services', servicesRoute)
 app.use('/api/employee', employeeRoute)
 
-app.listen(port, () => {
+app.get('/', (req, res) => {
+    res.send("Hello world!!")
+})
+
+app.listen(80, () => {
     conn();
-    console.log("server listening to port: ", port)
+    console.log("server listening to port: ", 80)
 });
