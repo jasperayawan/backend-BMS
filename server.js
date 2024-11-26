@@ -38,7 +38,8 @@ const port = process.env.PORT
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors({
-    origin: 'http://localhost:5173'
+    // origin: 'http://localhost:5173',
+    origin: 'https://barangay-management-system.netlify.app',
 }))
 
 // Configure Cloudinary
@@ -53,7 +54,7 @@ const api = new ParseServer({
     databaseURI: process.env.MONGODB_URI,
     appId: "app_barangaysystem_xmP5S0OBWpQPtloue4Zr7bz15Yo7BPjg",
     masterKey: '1234',
-    serverURL: `http://localhost:${port}/parse`,
+    serverURL: `https://54.79.236.189/parse`,
     appName: "Barangay-system",
     cloud: './cloud/main.js'
 })
@@ -63,7 +64,7 @@ const dashboardConfig = new ParseDashboard({
         {
             appId: "app_barangaysystem_xmP5S0OBWpQPtloue4Zr7bz15Yo7BPjg",
             masterKey: '1234',
-            serverURL: `http://localhost:${port}/parse`,
+            serverURL: `https://54.79.236.189/parse`,
             appName: "Barangay-system",
         }
     ]
