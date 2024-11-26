@@ -7,6 +7,10 @@ const cors = require("cors")
 const conn = require("./db");
 const cloudinary = require("cloudinary");
 
+const fs = require("fs");
+const https = require("https");
+const path = require("path");
+
 const authAdmin = require("./routes/admin.route")
 const resetPassRoute = require('./routes/resetPass.route');
 const userRoute = require('./routes/user.route')
@@ -22,6 +26,11 @@ const csrfProtection = require("./middleware/middleware");
 
 const app = express();
 dotenv.config();
+
+const options = {
+    key: fs.readFileSync("private.key"),
+    cert: fs.readFileSync("certificate.crt"),
+};
 
 const port = process.env.PORT
 
@@ -76,11 +85,14 @@ app.get('/', (req, res) => {
     res.send("Hello world!!")
 })
 
-app.get('/.well-known/pki-validation/7DD9A6E8AEFE9FB7AA972A8716CA976C.txt', (req, res) => {
-    res.sendFile('/home/ubuntu/backend-BMS/7DD9A6E8AEFE9FB7AA972A8716CA976C.txt')
-})
+// app.get('/.well-known/pki-validation/7DD9A6E8AEFE9FB7AA972A8716CA976C.txt', (req, res) => {
+//     res.sendFile('/home/ubuntu/backend-BMS/7DD9A6E8AEFE9FB7AA972A8716CA976C.txt')
+// })
 
-app.listen(80, () => {
-    conn();
-    console.log("server listening to port: 80")
-});
+// app.listen(port, () => {
+//     conn();
+//     console.log("server listening to port:",port)
+// });
+
+const server = https.createServer(options, app);
+server.listen(443, () => console.log('Server running on port 443'));
