@@ -19,6 +19,7 @@ const contactusRoute = require('./routes/contactus.route')
 const galleryRoute = require('./routes/gallery.route')
 const servicesRoute = require('./routes/services.route')
 const employeeRoute = require('./routes/employee.route')
+const patientRoute = require('./routes/patient.route')
 
 const csrfProtection = require("./middleware/middleware");
 
@@ -38,7 +39,6 @@ const port = process.env.PORT
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors({
-    // origin: 'http://localhost:5173',
     origin: 'https://barangay-management-system.netlify.app',
 }))
 
@@ -81,6 +81,7 @@ app.use('/api/contactus', contactusRoute)
 app.use('/api/gallery', galleryRoute)
 app.use('/api/services', servicesRoute)
 app.use('/api/employee', employeeRoute)
+app.use('/api/patient', patientRoute)
 
 app.get('/', (req, res) => {
     res.send("Hello world!!")
@@ -90,10 +91,6 @@ app.get('/', (req, res) => {
 //     res.sendFile('/home/ubuntu/backend-BMS/7DD9A6E8AEFE9FB7AA972A8716CA976C.txt')
 // })
 
-// app.listen(port, () => {
-//     conn();
-//     console.log("server listening to port:",port)
-// });
 
 const server = https.createServer(options, app);
 server.listen(443, () => console.log('Server running on port 443'));

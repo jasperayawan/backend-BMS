@@ -15,6 +15,7 @@ const contactusRoute = require('./routes/contactus.route')
 const galleryRoute = require('./routes/gallery.route')
 const servicesRoute = require('./routes/services.route')
 const employeeRoute = require('./routes/employee.route')
+const patientRoute = require('./routes/patient.route')
 
 const csrfProtection = require("./middleware/middleware");
 
@@ -71,6 +72,7 @@ app.use('/api/contactus', contactusRoute)
 app.use('/api/gallery', galleryRoute)
 app.use('/api/services', servicesRoute)
 app.use('/api/employee', employeeRoute)
+app.use('/api/patient', patientRoute)
 
 app.listen(port, () => {
     conn();

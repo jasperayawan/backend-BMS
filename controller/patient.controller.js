@@ -5,7 +5,7 @@ const createNewPatient = async (req, res) => {
   try {
     // Extract patient details from the request body
     const {
-      patientProfile,
+      profilePicture,
       firstname,
       lastname,
       middleInitial,
@@ -23,6 +23,7 @@ const createNewPatient = async (req, res) => {
       bloodType,
       contact,
       occupation,
+      role,
       email,
       password,
       houseHoldMonthlyIncome,
@@ -51,7 +52,7 @@ const createNewPatient = async (req, res) => {
     // Check if the email is already registered
     const query = new Parse.Query(Parse.User);
     query.equalTo('email', email);
-    const existingUser = await query.first();
+    const existingUser = await query.first({ useMasterKey: true });
 
     if (existingUser) {
       return res.status(400).json({ error: 'Email is already in use.' });
@@ -64,9 +65,9 @@ const createNewPatient = async (req, res) => {
     user.set('email', email);
 
     // Add patient-specific fields to the User object
-    if(patientProfile){
-        const imageResult = await cloudinary.uploader.upload(patientProfile);
-        user.set("patientProfile", imageResult.secure_url);
+    if(profilePicture){
+        const imageResult = await cloudinary.uploader.upload(profilePicture);
+        user.set("profilePicture", imageResult.secure_url);
     }
     user.set('firstname', firstname);
     user.set('lastname', lastname);
@@ -78,6 +79,7 @@ const createNewPatient = async (req, res) => {
     user.set('province', province);
     user.set('bod', bod);
     user.set('age', age);
+    user.set('role', role == null ? 'PATIENT' : role);
     user.set('nationality', nationality);
     user.set('religion', religion);
     user.set('patientIdNo', patientIdNo);
