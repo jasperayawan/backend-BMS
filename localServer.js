@@ -16,6 +16,7 @@ const galleryRoute = require('./routes/gallery.route')
 const servicesRoute = require('./routes/services.route')
 const employeeRoute = require('./routes/employee.route')
 const patientRoute = require('./routes/patient.route')
+const prenatalRoute = require('./routes/prenatal.route')
 
 const csrfProtection = require("./middleware/middleware");
 
@@ -73,6 +74,7 @@ app.use('/api/gallery', galleryRoute)
 app.use('/api/services', servicesRoute)
 app.use('/api/employee', employeeRoute)
 app.use('/api/patient', patientRoute)
+app.use('/api/prenatal', prenatalRoute)
 
 app.listen(port, () => {
     conn();
