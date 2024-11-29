@@ -21,7 +21,7 @@ const servicesRoute = require('./routes/services.route')
 const employeeRoute = require('./routes/employee.route')
 const patientRoute = require('./routes/patient.route')
 const prenatalRoute = require('./routes/prenatal.route')
-
+const immunizationRoute = require('./routes/immunization.route')
 const csrfProtection = require("./middleware/middleware");
 
 
@@ -84,6 +84,7 @@ app.use('/api/services', servicesRoute)
 app.use('/api/employee', employeeRoute)
 app.use('/api/patient', patientRoute)
 app.use('/api/prenatal', prenatalRoute)
+app.use('/api/immunization', immunizationRoute)
 
 app.get('/', (req, res) => {
     res.send("Hello world!!")
