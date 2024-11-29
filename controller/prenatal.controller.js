@@ -2,7 +2,7 @@ const Prenatal = Parse.Object.extend('Prenatal');
 
 const createNewPrenatal = async (req, res) => {
     const {
-        userId, // Add userId to associate the Prenatal record with a user
+        userId, 
         trimesterOne,
         dateOne,
         weekOne,
