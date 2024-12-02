@@ -9,6 +9,7 @@ const createNewPatient = async (req, res) => {
       firstname,
       lastname,
       middleInitial,
+      sex,
       civilStatus,
       purok,
       barangay,
@@ -31,13 +32,13 @@ const createNewPatient = async (req, res) => {
       nonLivingChild,
       healthcareAssistance,
       emergencyFirstName,
-      emerygencyLastName,
+      emergencyLastName,
       emergencyInitial,
       emergencyRelationship,
       emergencyAddress,
       emergencyBod,
       emergencyAge,
-      emergencyOcccupation,
+      emergencyOccupation,
       emergencyCivilStatus,
       emergencyNationality,
       emergencyReligion,
@@ -72,6 +73,7 @@ const createNewPatient = async (req, res) => {
     user.set('firstname', firstname);
     user.set('lastname', lastname);
     user.set('middleInitial', middleInitial);
+    user.set('sex', sex);
     user.set('civilStatus', civilStatus);
     user.set('purok', purok);
     user.set('barangay', barangay);
@@ -94,13 +96,13 @@ const createNewPatient = async (req, res) => {
 
     // Add emergency contact information
     user.set('emergencyFirstName', emergencyFirstName);
-    user.set('emerygencyLastName', emerygencyLastName);
+    user.set('emergencyLastName', emergencyLastName);
     user.set('emergencyInitial', emergencyInitial);
     user.set('emergencyRelationship', emergencyRelationship);
     user.set('emergencyAddress', emergencyAddress);
     user.set('emergencyBod', emergencyBod);
     user.set('emergencyAge', emergencyAge);
-    user.set('emergencyOcccupation', emergencyOcccupation);
+    user.set('emergencyOccupation', emergencyOccupation);
     user.set('emergencyCivilStatus', emergencyCivilStatus);
     user.set('emergencyNationality', emergencyNationality);
     user.set('emergencyReligion', emergencyReligion);
@@ -125,7 +127,7 @@ const updatePatient = async (req, res) => {
   
       // Query the patient by ID
       const query = new Parse.Query(Parse.User);
-      const patient = await query.get(id);
+      const patient = await query.get(id, { useMasterKey: true });
   
       if (!patient) {
         return res.status(404).json({ error: 'Patient not found.' });
@@ -139,7 +141,7 @@ const updatePatient = async (req, res) => {
       }
   
       // Save the updated patient
-      await patient.save();
+      await patient.save({ useMasterKey: true });
   
       res.status(200).json({ message: 'Patient updated successfully!', patient });
     } catch (error) {
@@ -153,9 +155,9 @@ const updatePatient = async (req, res) => {
       const query = new Parse.Query(Parse.User);
   
       // Optionally, filter by a role or specific field (e.g., "Patient")
-      query.equalTo('role', 'Patient'); 
+      query.equalTo('role', 'PATIENT'); 
   
-      const patients = await query.find();
+      const patients = await query.find({ useMasterKey: true });
   
       res.status(200).json({ patients });
     } catch (error) {
@@ -170,7 +172,7 @@ const updatePatient = async (req, res) => {
   
       // Query the patient by ID
       const query = new Parse.Query(Parse.User);
-      const patient = await query.get(id);
+      const patient = await query.get(id, { useMasterKey: true });
   
       if (!patient) {
         return res.status(404).json({ error: 'Patient not found.' });
@@ -190,14 +192,14 @@ const updatePatient = async (req, res) => {
   
       // Query the patient by ID
       const query = new Parse.Query(Parse.User);
-      const patient = await query.get(id);
+      const patient = await query.get(id, { useMasterKey: true });
   
       if (!patient) {
         return res.status(404).json({ error: 'Patient not found.' });
       }
   
       // Delete the patient
-      await patient.destroy();
+      await patient.destroy({ useMasterKey: true });
   
       res.status(200).json({ message: 'Patient deleted successfully!' });
     } catch (error) {

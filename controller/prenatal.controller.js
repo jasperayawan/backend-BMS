@@ -19,40 +19,16 @@ const createNewPrenatal = async (req, res) => {
         expectedDateToDeliver,
         questionOne,
         questionTwo,
-        edema,
-        constipation,
-        nauseaOrVomiting,
-        legCramps,
-        hemmorhoids,
-        heartBurn,
-        heent,
-        chestOrHeart,
-        abdomen,
-        genital,
-        extremities,
-        skin,
-        cva,
-        hypertension,
-        asthma,
-        heartDisease,
-        diabites,
-        skinTwo,
-        allergies,
-        drugIntake,
-        bleedingTendencies,
-        anemia,
-        diabitesTwo,
-        soresInOrAroundVagina,
+        symptoms,
+        reviewOfSystem,
+        familyHistory,
+        pastHistory,
         bloodPressure,
         weight,
         height,
         bodyMaxIndex,
         pulseRate,
-        dateForMaternalClientRecord,
-        complaints,
-        mcnServicesGiven,
-        NameOfProviderAndSignature,
-        followUp
+        maternalRecords
     } = req.body;
 
     try {
@@ -86,40 +62,16 @@ const createNewPrenatal = async (req, res) => {
         newPrenatal.set('expectedDateToDeliver', expectedDateToDeliver);
         newPrenatal.set('questionOne', questionOne);
         newPrenatal.set('questionTwo', questionTwo);
-        newPrenatal.set('edema', edema);
-        newPrenatal.set('constipation', constipation);
-        newPrenatal.set('nauseaOrVomiting', nauseaOrVomiting);
-        newPrenatal.set('legCramps', legCramps);
-        newPrenatal.set('hemmorhoids', hemmorhoids);
-        newPrenatal.set('heartBurn', heartBurn);
-        newPrenatal.set('heent', heent);
-        newPrenatal.set('chestOrHeart', chestOrHeart);
-        newPrenatal.set('abdomen', abdomen);
-        newPrenatal.set('genital', genital);
-        newPrenatal.set('extremities', extremities);
-        newPrenatal.set('skin', skin);
-        newPrenatal.set('cva', cva);
-        newPrenatal.set('hypertension', hypertension);
-        newPrenatal.set('asthma', asthma);
-        newPrenatal.set('heartDisease', heartDisease);
-        newPrenatal.set('diabites', diabites);
-        newPrenatal.set('skinTwo', skinTwo);
-        newPrenatal.set('allergies', allergies);
-        newPrenatal.set('drugIntake', drugIntake);
-        newPrenatal.set('bleedingTendencies', bleedingTendencies);
-        newPrenatal.set('anemia', anemia);
-        newPrenatal.set('diabitesTwo', diabitesTwo);
-        newPrenatal.set('soresInOrAroundVagina', soresInOrAroundVagina);
+        newPrenatal.set('symptoms', symptoms);
+        newPrenatal.set('reviewOfSystem', reviewOfSystem);
+        newPrenatal.set('familyHistory', familyHistory);
+        newPrenatal.set('pastHistory', pastHistory);
         newPrenatal.set('bloodPressure', bloodPressure);
         newPrenatal.set('weight', weight);
         newPrenatal.set('height', height);
         newPrenatal.set('bodyMaxIndex', bodyMaxIndex);
         newPrenatal.set('pulseRate', pulseRate);
-        newPrenatal.set('dateForMaternalClientRecord', dateForMaternalClientRecord);
-        newPrenatal.set('complaints', complaints);
-        newPrenatal.set('mcnServicesGiven', mcnServicesGiven);
-        newPrenatal.set('NameOfProviderAndSignature', NameOfProviderAndSignature);
-        newPrenatal.set('followUp', followUp);
+        newPrenatal.set('maternalRecords', maternalRecords);
 
         // Set the relation to the user
         newPrenatal.set('user', user); // Use the Pointer to associate the Prenatal record with the user
@@ -239,10 +191,35 @@ const deletePrenatal = async (req, res) => {
     }
 };
 
+const getPrenatalByUserId = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const query = new Parse.Query('Prenatal');
+        const userPointer = new Parse.User();
+        userPointer.id = userId;
+        
+        query.equalTo('user', userPointer);
+        const prenatals = await query.find({ useMasterKey: true });
+
+        res.status(200).json({
+            success: true,
+            data: prenatals,
+        });
+    } catch (error) {
+        console.error('Error fetching prenatal records:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching prenatal records',
+            error: error.message,
+        });
+    }
+};
 
 module.exports = {
     createNewPrenatal,
     updatePrenatal,
     getPrenatalById,
-    deletePrenatal
+    deletePrenatal,
+    getPrenatalByUserId
 }

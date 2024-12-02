@@ -24,8 +24,9 @@ const createNewImmunization = async (req, res) => {
     try {
 
         const userQuery = new Parse.Query(Parse.User);
+        console.log('userId', userId);
         const user = await userQuery.get(userId, { useMasterKey: true });
-
+        console.log('user', user);
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -155,9 +156,49 @@ const deleteImmunization = async (req, res) => {
     }
 };
 
+const getImmunizationsByUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        // First get the user
+        const userQuery = new Parse.Query(Parse.User);
+        const user = await userQuery.get(userId, { useMasterKey: true });
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Then query immunizations for this user
+        const query = new Parse.Query(Immunization);
+        query.equalTo('user', user);
+        const immunizations = await query.find({ useMasterKey: true });
+
+        if (immunizations.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No immunization records found for this user'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: immunizations
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createNewImmunization,
     getImmunizationById,
     updateImmunization,
-    deleteImmunization
+    deleteImmunization,
+    getImmunizationsByUser
 }
