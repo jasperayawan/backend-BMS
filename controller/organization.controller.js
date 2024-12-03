@@ -34,7 +34,34 @@ const deleteUserFromOrg = async (req, res) => {
 }
 
 
+const updateTeamMember = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, role, image } = req.body;
+
+        const query = new Parse.Query(TeamMember);
+        const teamMember = await query.get(id);
+
+        if (!teamMember) {
+            return res.status(404).json({ error: 'Team member not found' });
+        }
+
+        teamMember.set('name', name);
+        teamMember.set('role', role);
+        teamMember.set('image', image);
+
+        await teamMember.save();
+
+        return res.status(200).json({ message: 'Team member updated successfully' });
+    } catch (error) {
+        console.error('Error updating Team member:', error);
+        return res.status(500).json({ error: 'Failed to update Team member. Please try again.' });
+    }
+}
+
+
 module.exports = {
     getOrganizationAboutus,
-    deleteUserFromOrg
+    deleteUserFromOrg,
+    updateTeamMember
 }

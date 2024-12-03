@@ -70,28 +70,55 @@ Parse.Cloud.define("getUsers", async (request) => {
 
 
 
-Parse.Cloud.define('addOrUpdateMember', async (request) => {
+  Parse.Cloud.define('addOrUpdateMember', async (request) => {
     const { id, name, role, image } = request.params;
   
-    let TeamMember = Parse.Object.extend('Organization');
-    let teamMember = new TeamMember();
+    try {
+      let TeamMember = Parse.Object.extend('Organization');
+      let teamMember;
   
-    if (id) {
-      const query = new Parse.Query(TeamMember);
-      teamMember = await query.get(id);
-    }
+      if (id) {
+        // Update existing member
+        const query = new Parse.Query(TeamMember);
+        try {
+          teamMember = await query.get(id);
+          console.log('Updating existing member:', id);
+        } catch (error) {
+          throw new Error(`Member with ID ${id} not found`);
+        }
+      } else {
+        // Create new member
+        teamMember = new TeamMember();
+        console.log('Creating new member');
+      }
   
-    // Set the properties
-    teamMember.set('name', name);
-    teamMember.set('role', role);
-
-    if(image){
+      // Set the properties
+      teamMember.set('name', name);
+      teamMember.set('role', role);
+  
+      // Only update image if a new one is provided
+      if (image) {
         const imageResult = await cloudinary.uploader.upload(image);
         teamMember.set("image", imageResult.secure_url);
       }
   
-    await teamMember.save();
-    return { success: true, message: 'Member saved successfully.' };
+      await teamMember.save(null, { useMasterKey: true });
+  
+      return { 
+        success: true, 
+        message: id ? 'Member updated successfully.' : 'Member added successfully.',
+        member: {
+          objectId: teamMember.id,
+          name: teamMember.get('name'),
+          role: teamMember.get('role'),
+          image: teamMember.get('image')
+        }
+      };
+  
+    } catch (error) {
+      console.error('Error in addOrUpdateMember:', error);
+      throw new Error(error.message);
+    }
   });
   
   

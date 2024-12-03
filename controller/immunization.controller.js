@@ -24,9 +24,8 @@ const createNewImmunization = async (req, res) => {
     try {
 
         const userQuery = new Parse.Query(Parse.User);
-        console.log('userId', userId);
         const user = await userQuery.get(userId, { useMasterKey: true });
-        console.log('user', user);
+
         if (!user) {
             return res.status(404).json({
                 success: false,
