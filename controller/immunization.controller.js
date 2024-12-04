@@ -3,6 +3,7 @@ const Immunization = Parse.Object.extend('Immunization');
 const createNewImmunization = async (req, res) => {
     const {
         userId,
+        nurseIncharge,
         patientIdNo,
         lastName,
         firstName,
@@ -25,11 +26,17 @@ const createNewImmunization = async (req, res) => {
 
         const userQuery = new Parse.Query(Parse.User);
         const user = await userQuery.get(userId, { useMasterKey: true });
-
+        const nurse = await userQuery.get(nurseIncharge, { useMasterKey: true });
         if (!user) {
             return res.status(404).json({
                 success: false,
                 message: 'User not found',
+            });
+        }
+        if (!nurse) {
+            return res.status(404).json({
+                success: false,
+                message: 'Nurse not found',
             });
         }
 
@@ -56,7 +63,7 @@ const createNewImmunization = async (req, res) => {
         immunization.set('micronutrientHistory', micronutrientHistory);
 
         immunization.set('user', user);
-
+        immunization.set('nurseIncharge', nurse);
         const savedImmunization = await immunization.save(null, { useMasterKey: true });
 
         res.status(201).json({
@@ -173,6 +180,7 @@ const getImmunizationsByUser = async (req, res) => {
         // Then query immunizations for this user
         const query = new Parse.Query(Immunization);
         query.equalTo('user', user);
+        query.include('nurseIncharge');
         const immunizations = await query.find({ useMasterKey: true });
 
         if (immunizations.length === 0) {
@@ -182,9 +190,17 @@ const getImmunizationsByUser = async (req, res) => {
             });
         }
 
+        // Add username information to the response
+        const immunizationsWithUsernames = immunizations.map(immunization => {
+            const immunizationData = immunization.toJSON();
+            immunizationData.username = user.get('username');
+            immunizationData.nurseUsername = immunization.get('nurseIncharge').get('username');
+            return immunizationData;
+        });
+
         res.status(200).json({
             success: true,
-            data: immunizations
+            data: immunizationsWithUsernames
         });
     } catch (error) {
         res.status(500).json({

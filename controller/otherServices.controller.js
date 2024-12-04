@@ -6,6 +6,7 @@ const createOtherService = async (req, res) => {
   try {
     const {
       userId,
+      nurseIncharge,
       servicesAvailed,
       date,
       firstName,
@@ -27,11 +28,18 @@ const createOtherService = async (req, res) => {
 
     const userQuery = new Parse.Query(Parse.User);
     const user = await userQuery.get(userId, { useMasterKey: true }); 
+    const nurse = await userQuery.get(nurseIncharge, { useMasterKey: true });
 
     if (!user) {
         return res.status(404).json({
             success: false,
             message: 'User not found',
+        });
+    }
+    if (!nurse) {
+        return res.status(404).json({
+            success: false,
+            message: 'Nurse not found',
         });
     }
 
@@ -59,7 +67,8 @@ const createOtherService = async (req, res) => {
     service.set("nurseSignature", nurseSignature);
     // Set the relation to the user
     service.set("user", user);
-
+    service.set("nurseIncharge", nurse);
+    
     // Save the service record
     await service.save(null, { useMasterKey: true });
 
@@ -185,6 +194,8 @@ const getServicesByUserId = async (req, res) => {
     // Query for the first service related to this user
     const query = new Parse.Query(OtherServices);
     query.equalTo("user", user);
+    // Include the nurse pointer to get nurse details
+    query.include("nurseIncharge");
     // Optionally add sorting by date in descending order (most recent first)
     query.descending("date");
     const service = await query.first({ useMasterKey: true });
@@ -196,9 +207,16 @@ const getServicesByUserId = async (req, res) => {
       });
     }
 
+    // Get the nurse object and extract username
+    const nurse = service.get("nurseIncharge");
+    const nurseUsername = nurse ? nurse.get("username") : null;
+
     res.status(200).json({
       success: true,
-      data: service
+      data: {
+        ...service.toJSON(),
+        nurseUsername
+      }
     });
   } catch (error) {
     console.error('Error fetching services by userId:', error);

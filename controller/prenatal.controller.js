@@ -3,6 +3,7 @@ const Prenatal = Parse.Object.extend('Prenatal');
 const createNewPrenatal = async (req, res) => {
     const {
         userId, 
+        nurseIncharge,
         trimesterOne,
         dateOne,
         weekOne,
@@ -35,6 +36,7 @@ const createNewPrenatal = async (req, res) => {
         // Retrieve the user by ID
         const userQuery = new Parse.Query(Parse.User);
         const user = await userQuery.get(userId, { useMasterKey: true }); // Ensure master key is used for secure queries
+        const nurse = await userQuery.get(nurseIncharge, { useMasterKey: true });
 
         if (!user) {
             return res.status(404).json({
@@ -42,6 +44,13 @@ const createNewPrenatal = async (req, res) => {
                 message: 'User not found',
             });
         }
+        if (!nurse) {
+            return res.status(404).json({
+                success: false,
+                message: 'Nurse not found',
+            });
+        }
+
 
         const newPrenatal = new Prenatal();
 
@@ -75,6 +84,7 @@ const createNewPrenatal = async (req, res) => {
 
         // Set the relation to the user
         newPrenatal.set('user', user); // Use the Pointer to associate the Prenatal record with the user
+        newPrenatal.set('nurseIncharge', nurse);
 
         // Save the new Prenatal object
         const savedPrenatal = await newPrenatal.save(null, { useMasterKey: true });
@@ -200,11 +210,20 @@ const getPrenatalByUserId = async (req, res) => {
         userPointer.id = userId;
         
         query.equalTo('user', userPointer);
+        query.include('nurseIncharge');
         const prenatals = await query.find({ useMasterKey: true });
+
+        const prenatalsWithNurse = prenatals.map(prenatal => {
+            const nurse = prenatal.get('nurseIncharge');
+            return {
+                ...prenatal.toJSON(),
+                nurseUsername: nurse ? nurse.get('username') : null
+            };
+        });
 
         res.status(200).json({
             success: true,
-            data: prenatals,
+            data: prenatalsWithNurse,
         });
     } catch (error) {
         console.error('Error fetching prenatal records:', error);
