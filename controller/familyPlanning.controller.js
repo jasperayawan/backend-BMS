@@ -198,26 +198,27 @@ const getFamilyPlanningRecordsByUserId = async (req, res) => {
     // Then use the User object in the query
     const FamilyPlanning = Parse.Object.extend("FamilyPlanning");
     const query = new Parse.Query(FamilyPlanning);
-    query.equalTo("user", user);  // Compare with User object instead of userId
-    query.include("nurseIncharge");  // Include the nurseIncharge relation
-    const record = await query.first({ useMasterKey: true });
+    query.equalTo("user", user);
+    query.include("nurseIncharge");
+    query.descending("createdAt");
+    const records = await query.find({ useMasterKey: true });
 
-    if (!record) {
-      return res.status(404).json({ message: 'No family planning record found for this user.' });
+    if (!records.length) {
+      return res.status(404).json({ message: 'No family planning records found for this user.' });
     }
 
-    // Get the nurse's name from the included nurseIncharge object
-    const nurseName = record.get('nurseIncharge') ? 
-      `${record.get('nurseIncharge').get('firstname')} ${record.get('nurseIncharge').get('lastname')}` : 
-      'Unknown';
-
-    res.status(200).json({ 
+    // Map through records to include nurse names
+    const recordsWithNurseNames = records.map(record => ({
       record,
-      nurseName 
-    });
+      nurseName: record.get('nurseIncharge') ? 
+        `${record.get('nurseIncharge').get('firstname')} ${record.get('nurseIncharge').get('lastname')}` : 
+        'Unknown'
+    }));
+
+    res.status(200).json({ records: recordsWithNurseNames });
   } catch (error) {
-    console.error('Error fetching family planning record by userId:', error.message);
-    res.status(500).json({ error: 'An error occurred while fetching the record.' });
+    console.error('Error fetching family planning records by userId:', error.message);
+    res.status(500).json({ error: 'An error occurred while fetching the records.' });
   }
 };
 

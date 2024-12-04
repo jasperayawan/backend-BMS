@@ -181,6 +181,7 @@ const getImmunizationsByUser = async (req, res) => {
         const query = new Parse.Query(Immunization);
         query.equalTo('user', user);
         query.include('nurseIncharge');
+        query.descending("createdAt");
         const immunizations = await query.find({ useMasterKey: true });
 
         if (immunizations.length === 0) {

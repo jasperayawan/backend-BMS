@@ -211,6 +211,7 @@ const getPrenatalByUserId = async (req, res) => {
         
         query.equalTo('user', userPointer);
         query.include('nurseIncharge');
+        query.descending("createdAt");
         const prenatals = await query.find({ useMasterKey: true });
 
         const prenatalsWithNurse = prenatals.map(prenatal => {

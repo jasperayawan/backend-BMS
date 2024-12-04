@@ -191,38 +191,41 @@ const getServicesByUserId = async (req, res) => {
       });
     }
 
-    // Query for the first service related to this user
+    // Query for all services related to this user
     const query = new Parse.Query(OtherServices);
     query.equalTo("user", user);
     // Include the nurse pointer to get nurse details
     query.include("nurseIncharge");
     // Optionally add sorting by date in descending order (most recent first)
-    query.descending("date");
-    const service = await query.first({ useMasterKey: true });
+    query.descending("createdAt");
+    const services = await query.find({ useMasterKey: true });
 
-    if (!service) {
+    if (services.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No service record found for user'
+        message: 'No service records found for user'
       });
     }
 
-    // Get the nurse object and extract username
-    const nurse = service.get("nurseIncharge");
-    const nurseUsername = nurse ? nurse.get("username") : null;
+    // Map services to include nurse username
+    const servicesWithNurse = services.map(service => {
+      const nurse = service.get("nurseIncharge");
+      const nurseUsername = nurse ? nurse.get("username") : null;
+      return {
+        ...service.toJSON(),
+        nurseUsername
+      };
+    });
 
     res.status(200).json({
       success: true,
-      data: {
-        ...service.toJSON(),
-        nurseUsername
-      }
+      data: servicesWithNurse
     });
   } catch (error) {
     console.error('Error fetching services by userId:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching service record for user',
+      message: 'Error fetching service records for user',
       error: error.message
     });
   }
