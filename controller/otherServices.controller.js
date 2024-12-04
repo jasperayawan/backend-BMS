@@ -134,53 +134,7 @@ const getServiceById = async (req, res) => {
   }
 };
 
-// Update service record
-const updateService = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const query = new Parse.Query(OtherServices);
-    const service = await query.get(id, { useMasterKey: true });
 
-    if (!service) {
-      return res.status(404).json({
-        success: false,
-        message: 'Service record not found'
-      });
-    }
-
-    // Update fields
-    Object.keys(req.body).forEach(key => {
-      let value = req.body[key];
-      // Convert date strings to Date objects
-      if (key === 'date' || key === 'dateOfBirth') {
-        value = new Date(value);
-      }
-      // Convert numeric strings to numbers
-      if (key === 'age') {
-        value = parseInt(value);
-      }
-      if (key === 'height' || key === 'weight') {
-        value = parseFloat(value);
-      }
-      service.set(key, value);
-    });
-
-    await service.save(null, { useMasterKey: true });
-
-    res.status(200).json({
-      success: true,
-      data: service,
-      message: 'Service record updated successfully'
-    });
-  } catch (error) {
-    console.error('Error updating service:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error updating service record',
-      error: error.message
-    });
-  }
-};
 
 // Delete service record
 const deleteService = async (req, res) => {
@@ -256,11 +210,94 @@ const getServicesByUserId = async (req, res) => {
   }
 };
 
+const updateService = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const query = new Parse.Query(OtherServices);
+    const service = await query.get(id, { useMasterKey: true });
+
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: 'Service record not found'
+      });
+    }
+
+    // Define allowed fields that exist in the schema
+    const allowedFields = [
+      "servicesAvailed",
+      "date",
+      "firstName", 
+      "middleName",
+      "lastName",
+      "sex",
+      "status",
+      "dateOfBirth",
+      "age",
+      "bloodType",
+      "bloodPressure", 
+      "height",
+      "weight",
+      "relationship",
+      "prescription",
+      "patientSignature",
+      "nurseSignature"
+    ];
+
+    // Update only allowed fields if they are provided in req.body
+    Object.keys(req.body).forEach(field => {
+      if (allowedFields.includes(field)) {
+        let value = req.body[field];
+        
+        // Handle special data types
+        if (field === "date" || field === "dateOfBirth") {
+          // Store dates as strings to match schema
+          value = value.toString();
+        } else if (field === "age" || field === "height" || field === "weight") {
+          // Store numeric fields as strings to match schema
+          value = value.toString();
+        }
+        
+        service.set(field, value);
+      }
+    });
+
+    // Handle user relation separately
+    if (req.body.userId) {
+      const userQuery = new Parse.Query(Parse.User);
+      const user = await userQuery.get(req.body.userId, { useMasterKey: true });
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+      service.set("user", user);
+    }
+
+    await service.save(null, { useMasterKey: true });
+
+    res.status(200).json({
+      success: true,
+      data: service,
+      message: 'Service record updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating service:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating service record',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createOtherService,
   getAllServices,
   getServiceById,
-  updateService,
   deleteService,
-  getServicesByUserId
+  getServicesByUserId,
+  updateService
 }; 
