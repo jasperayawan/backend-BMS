@@ -194,10 +194,58 @@ const getImmunizationsByUser = async (req, res) => {
     }
 };
 
+const updateImmunizationByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        // First get the user
+        const userQuery = new Parse.Query(Parse.User);
+        const user = await userQuery.get(userId, { useMasterKey: true });
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Query immunization for this user
+        const query = new Parse.Query(Immunization);
+        query.equalTo('user', user);
+        const immunization = await query.first({ useMasterKey: true });
+
+        if (!immunization) {
+            return res.status(404).json({
+                success: false,
+                message: 'No immunization record found for this user'
+            });
+        }
+
+        // Update only the fields that are provided in the request
+        Object.keys(req.body).forEach(key => {
+            immunization.set(key, req.body[key]);
+        });
+
+        const updatedImmunization = await immunization.save(null, { useMasterKey: true });
+
+        res.status(200).json({
+            success: true,
+            message: 'Immunization record updated successfully',
+            data: updatedImmunization
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createNewImmunization,
     getImmunizationById,
     updateImmunization,
     deleteImmunization,
-    getImmunizationsByUser
+    getImmunizationsByUser,
+    updateImmunizationByUserId
 }
