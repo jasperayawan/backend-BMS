@@ -148,9 +148,11 @@ const updatePrenatal = async (req, res) => {
             });
         }
 
-        // Update fields dynamically based on request body
+        // Update fields dynamically based on request body, excluding nurseIncharge
         Object.keys(updatedData).forEach((key) => {
-            prenatal.set(key, updatedData[key]);
+            if (key !== 'nurseIncharge') {  // Skip nurseIncharge field
+                prenatal.set(key, updatedData[key]);
+            }
         });
 
         const updatedPrenatal = await prenatal.save(null, { useMasterKey: true });
