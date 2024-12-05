@@ -90,8 +90,8 @@ const createNewPatient = async (req, res) => {
     user.set('contact', contact);
     user.set('occupation', occupation);
     user.set('houseHoldMonthlyIncome', houseHoldMonthlyIncome);
-    user.set('livingChild', livingChild);
-    user.set('nonLivingChild', nonLivingChild);
+    user.set('livingChild', livingChild.toString());
+    user.set('nonLivingChild', nonLivingChild.toString());
     user.set('healthcareAssistance', healthcareAssistance);
 
     // Add emergency contact information
@@ -114,8 +114,58 @@ const createNewPatient = async (req, res) => {
     // Respond with success
     res.status(201).json({ message: 'Patient registered successfully!', user });
   } catch (error) {
-    console.error('Error creating patient:', error.message);
-    res.status(500).json({ error: 'An error occurred while creating the patient.' });
+    console.error('Error creating patient:', error);
+    
+    // Handle Parse specific errors
+    if (error.code) {
+      switch (error.code) {
+        case Parse.Error.USERNAME_TAKEN:
+          return res.status(409).json({
+            error: 'This username is already taken',
+            code: error.code
+          });
+        case Parse.Error.EMAIL_TAKEN:
+          return res.status(409).json({
+            error: 'This email is already registered',
+            code: error.code
+          });
+        case Parse.Error.INVALID_EMAIL_ADDRESS:
+          return res.status(400).json({
+            error: 'The email address is invalid',
+            code: error.code
+          });
+        case Parse.Error.PASSWORD_MISSING:
+          return res.status(400).json({
+            error: 'Password is required',
+            code: error.code
+          });
+      }
+    }
+
+    // Handle Cloudinary errors
+    if (error.http_code) {
+      return res.status(error.http_code).json({
+        error: 'Error uploading profile picture',
+        details: error.message,
+        code: 'CLOUDINARY_ERROR'
+      });
+    }
+
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        error: 'Validation error',
+        details: error.message,
+        code: 'VALIDATION_ERROR'
+      });
+    }
+
+    // Default error response
+    res.status(500).json({
+      error: 'An error occurred while creating the patient',
+      details: error.message,
+      code: 'INTERNAL_SERVER_ERROR'
+    });
   }
 };
 
