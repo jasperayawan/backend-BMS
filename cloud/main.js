@@ -167,5 +167,130 @@ Parse.Cloud.define("updateMyAccount", async (request) => {
     }
   });
   
+
+//Announcement
+  
+Parse.Cloud.define("createAnnouncement", async (request) => {
+  const { title, description, images } = request.params;
+  
+  try {
+    const Announcement = Parse.Object.extend("Announcement");
+    const announcement = new Announcement();
+
+    // Set basic fields
+    announcement.set("title", title);
+    announcement.set("description", description);
+    
+    // Handle multiple image uploads
+    if (images && Array.isArray(images)) {
+      const uploadedImages = await Promise.all(
+        images.map(image => cloudinary.uploader.upload(image))
+      );
+      
+      // Store array of secure URLs
+      announcement.set("images", uploadedImages.map(img => img.secure_url));
+    }
+
+    await announcement.save(null, { useMasterKey: true });
+
+    return {
+      success: true,
+      message: "Announcement created successfully",
+      announcement: {
+        id: announcement.id,
+        title: announcement.get("title"),
+        description: announcement.get("description"),
+        images: announcement.get("images"),
+        createdAt: announcement.createdAt
+      }
+    };
+  } catch (error) {
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, error.message);
+  }
+});
+
+Parse.Cloud.define("getAnnouncements", async () => {
+  try {
+    const query = new Parse.Query("Announcement");
+    query.descending("createdAt"); // Most recent first
+    
+    const announcements = await query.find({ useMasterKey: true });
+    
+    return announcements.map(announcement => ({
+      id: announcement.id,
+      title: announcement.get("title"),
+      description: announcement.get("description"),
+      images: announcement.get("images"),
+      createdAt: announcement.createdAt
+    }));
+  } catch (error) {
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, error.message);
+  }
+});
+
+Parse.Cloud.define("updateAnnouncement", async (request) => {
+  const { id, title, description, images, removedImages } = request.params;
+  
+  try {
+    const query = new Parse.Query("Announcement");
+    const announcement = await query.get(id, { useMasterKey: true });
+    
+    if (title) announcement.set("title", title);
+    if (description) announcement.set("description", description);
+    
+    // Handle image updates
+    if (images && Array.isArray(images)) {
+      const currentImages = announcement.get("images") || [];
+      
+      // Upload new images
+      const uploadedImages = await Promise.all(
+        images.map(image => cloudinary.uploader.upload(image))
+      );
+      
+      // Combine existing and new images, removing any that were marked for removal
+      const updatedImages = [
+        ...currentImages.filter(img => !removedImages?.includes(img)),
+        ...uploadedImages.map(img => img.secure_url)
+      ];
+      
+      announcement.set("images", updatedImages);
+    }
+
+    await announcement.save(null, { useMasterKey: true });
+
+    return {
+      success: true,
+      message: "Announcement updated successfully",
+      announcement: {
+        id: announcement.id,
+        title: announcement.get("title"),
+        description: announcement.get("description"),
+        images: announcement.get("images"),
+        updatedAt: announcement.updatedAt
+      }
+    };
+  } catch (error) {
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, error.message);
+  }
+});
+
+Parse.Cloud.define("deleteAnnouncement", async (request) => {
+  const { id } = request.params;
+  
+  try {
+    const query = new Parse.Query("Announcement");
+    const announcement = await query.get(id, { useMasterKey: true });
+    
+    await announcement.destroy({ useMasterKey: true });
+
+    return {
+      success: true,
+      message: "Announcement deleted successfully"
+    };
+  } catch (error) {
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, error.message);
+  }
+});
+  
   
   
