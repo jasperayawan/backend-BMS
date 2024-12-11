@@ -82,7 +82,45 @@ const createRole = async (roleName, user) => {
     }
   };
   
+  const updateUser = async (req, res) => {
+    const { id } = req.params;
+    const { profilePicture, ...updateData } = req.body;
+
+    try {
+      // Query the user by ID
+      const query = new Parse.Query(Parse.User);
+      const user = await query.get(id, { useMasterKey: true });
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Handle profile picture update if provided
+      if (profilePicture) {
+        const imageResult = await cloudinary.uploader.upload(profilePicture);
+        user.set('profilePicture', imageResult.secure_url);
+      }
+
+      // Update other fields
+      Object.keys(updateData).forEach(key => {
+        user.set(key, updateData[key]);
+      });
+
+      // Save the updated user
+      await user.save(null, { useMasterKey: true });
+
+      res.status(200).json({
+        message: 'User updated successfully',
+        user
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+      res.status(500).json({ error: `Error updating user: ${error.message}` });
+    }
+  };
+  
   module.exports = {
-    createUserWithRole
+    createUserWithRole,
+    updateUser
   };
   
