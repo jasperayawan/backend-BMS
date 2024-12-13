@@ -36,16 +36,17 @@ const createRole = async (roleName, user) => {
   };
   
   const createUserWithRole = async (req, res) => {
-    const { profilePicture, name, role, birthdate, age, bloodType, address, contact, email, username, password, status } = req.body;
+    const { user_id, profilePicture, name, role, birthdate, age, bloodType, address, contact, email, username, password, status } = req.body;
   
     try {
       // Validate input
-      if (!username || !password || !role) {
+      if (!username || !password || !role || !user_id) {
         return res.status(400).json({ error: 'Username, password, and role are required' });
       }
   
       // Create a new Parse.User object for the user
       const user = new Parse.User();
+      user.set('user_id', user_id)
       user.set('username', username);
       user.set('email', email);
       user.set('password', password);

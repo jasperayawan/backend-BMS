@@ -15,6 +15,8 @@ Parse.Cloud.define("getUsers", async (request) => {
       const users = await query.find({ useMasterKey: true });
       return users.map((user) => ({
         id: user.id,
+        user_id: user.get("user_id"),
+        userType: user.get("role"),
         profilePicture: user.get("profilePicture"),
         age: user.get("age"),
         bloodType: user.get("bloodType"),
@@ -25,6 +27,8 @@ Parse.Cloud.define("getUsers", async (request) => {
         status: user.get("status"),
         address: user.get("address"),
         contact: user.get("contact"),
+        username: user.get("username"),
+        createdAt: user.get("createdAt"),
       }));
     } catch (error) {
       throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, error.message);
