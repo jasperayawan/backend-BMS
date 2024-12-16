@@ -1,6 +1,14 @@
 const cloudinary = require("cloudinary")
 
 
+Parse.Cloud.define("checkEmailExists", async (request) => {
+  const query = new Parse.Query(Parse.User);
+  query.equalTo("email", request.params.email);
+  const user = await query.first({ useMasterKey: true });
+  return user !== undefined;
+});
+
+
 Parse.Cloud.define("getUsers", async (request) => {
     try {
       const query = new Parse.Query(Parse.User);
