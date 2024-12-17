@@ -10,86 +10,87 @@ const createFamilyPlanningRecord = async (req, res) => {
       changingMethod,
       changingClinic,
       dropoutRestart,
-      spacingReason,
+      spacing, // Updated
       medicalCondition,
       sideEffects,
-      limitingReason,
-      otherReason,
+      limiting, // Updated
+      others, // Updated
       // Method Currently Used
       coc,
       pop,
       injectable,
       implant,
-      inteval,
+      interval, // Updated
       postPartum,
       condom,
       bomCmm,
       bbt,
       stm,
       lam,
-      otherMethod,
+      methodOthers, // Updated
       // VAW Risks
       unpleasantRelationship,
       partnerDisapproval,
       domesticViolence,
-      referredToDSWD,
-      referredToWCPU,
-      referredToOthers,
+      dswd, // Updated
+      wcpu, // Updated
+      riskOthers // Updated
     } = req.body;
 
+    // Fetch user and nurse in charge
     const userQuery = new Parse.Query(Parse.User);
     const user = await userQuery.get(userId, { useMasterKey: true });
     const nurse = await userQuery.get(nurseIncharge, { useMasterKey: true });
 
     if (!user) {
-        return res.status(404).json({
-            success: false,
-            message: 'User not found',
-        });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
 
     if (!nurse) {
       return res.status(404).json({
-          success: false,
-          message: 'User not found',
+        success: false,
+        message: 'Nurse not found',
       });
-  }
+    }
 
     // Create a new Parse Object for FamilyPlanning
     const FamilyPlanning = Parse.Object.extend("FamilyPlanning");
     const familyPlanningRecord = new FamilyPlanning();
 
-    // Set only the fields that match formData
+    // Set fields based on updated client-side formData
     familyPlanningRecord.set('newAcceptor', newAcceptor);
     familyPlanningRecord.set('currentUser', currentUser);
     familyPlanningRecord.set('changingMethod', changingMethod);
     familyPlanningRecord.set('changingClinic', changingClinic);
     familyPlanningRecord.set('dropoutRestart', dropoutRestart);
-    familyPlanningRecord.set('spacingReason', spacingReason);
+    familyPlanningRecord.set('spacingReason', spacing);
     familyPlanningRecord.set('medicalCondition', medicalCondition);
     familyPlanningRecord.set('sideEffects', sideEffects);
-    familyPlanningRecord.set('limitingReason', limitingReason);
-    familyPlanningRecord.set('otherReason', otherReason);
+    familyPlanningRecord.set('limitingReason', limiting);
+    familyPlanningRecord.set('otherReason', others);
     familyPlanningRecord.set('coc', coc);
     familyPlanningRecord.set('pop', pop);
     familyPlanningRecord.set('injectable', injectable);
     familyPlanningRecord.set('implant', implant);
-    familyPlanningRecord.set('inteval', inteval);
+    familyPlanningRecord.set('inteval', interval); // Updated field
     familyPlanningRecord.set('postPartum', postPartum);
     familyPlanningRecord.set('condom', condom);
     familyPlanningRecord.set('bomCmm', bomCmm);
     familyPlanningRecord.set('bbt', bbt);
     familyPlanningRecord.set('stm', stm);
     familyPlanningRecord.set('lam', lam);
-    familyPlanningRecord.set('otherMethod', otherMethod);
+    familyPlanningRecord.set('otherMethod', methodOthers);
     familyPlanningRecord.set('unpleasantRelationship', unpleasantRelationship);
     familyPlanningRecord.set('partnerDisapproval', partnerDisapproval);
     familyPlanningRecord.set('domesticViolence', domesticViolence);
-    familyPlanningRecord.set('referredToDSWD', referredToDSWD);
-    familyPlanningRecord.set('referredToWCPU', referredToWCPU);
-    familyPlanningRecord.set('referredToOthers', referredToOthers);
-    familyPlanningRecord.set('nurseIncharge', nurse)
-    familyPlanningRecord.set('user', user)
+    familyPlanningRecord.set('dswd', dswd);
+    familyPlanningRecord.set('wcpu', wcpu);
+    familyPlanningRecord.set('riskOthers', riskOthers);
+    familyPlanningRecord.set('nurseIncharge', nurse);
+    familyPlanningRecord.set('user', user);
 
     // Save the record
     await familyPlanningRecord.save(null, { useMasterKey: true });
@@ -104,10 +105,21 @@ const createFamilyPlanningRecord = async (req, res) => {
   }
 };
 
+
 const updateFamilyPlanningRecord = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedData = req.body;
+    let updatedData = req.body;
+
+    // Normalize 'otherReason' field to ensure it's a string
+    if (updatedData.hasOwnProperty('otherReason')) {
+      updatedData.otherReason = updatedData.otherReason ? String(updatedData.otherReason) : ""; // Convert to string
+    }
+
+    // Normalize 'otherMethod' field to ensure it's a string
+    if (updatedData.hasOwnProperty('otherMethod')) {
+      updatedData.otherMethod = updatedData.otherMethod ? String(updatedData.otherMethod) : ""; // Convert to string
+    }
 
     const FamilyPlanning = Parse.Object.extend("FamilyPlanning");
     const query = new Parse.Query(FamilyPlanning);
@@ -133,6 +145,8 @@ const updateFamilyPlanningRecord = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while updating the record.' });
   }
 };
+
+
 
 const getFamilyPlanningRecord = async (req, res) => {
   try {
