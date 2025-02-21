@@ -94,10 +94,14 @@ app.get('/', (req, res) => {
     res.send("Hello world!!")
 })
 
-// app.get('/.well-known/pki-validation/7DD9A6E8AEFE9FB7AA972A8716CA976C.txt', (req, res) => {
-//     res.sendFile('/home/ubuntu/backend-BMS/7DD9A6E8AEFE9FB7AA972A8716CA976C.txt')
-// })
+app.get('/.well-known/pki-validation/B437B00D3B2D3710C392A93FB276FA8E.txt', (req, res) => {
+    res.sendFile('/home/ubuntu/backend-BMS/B437B00D3B2D3710C392A93FB276FA8E.txt')
+})
 
 
-const server = https.createServer(options, app);
-server.listen(443, () => console.log('Server running on port 443'));
+// const server = https.createServer(options, app);
+// server.listen(443, () => console.log('Server running on port 443'));
+
+app.listen(80, () => {
+    console.log("server listening to port: ", 80)
+});
