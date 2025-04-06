@@ -36,6 +36,7 @@ const transporter = nodemailer.createTransport({
   
         // Step 3: Send reset password email
         const resetLink = `https://barangay-management-system.netlify.app/reset-password?token=${resetToken}`;
+        // const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
   
         const mailOptions = {
             from: '"Barangay sytem" <barangaysystem@gmail.com>',

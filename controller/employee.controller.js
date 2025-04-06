@@ -146,7 +146,7 @@ const updateEmployee = async (req, res) => {
       if (maritalStatus) employee.set("maritalStatus", maritalStatus);
       if (bloodType) employee.set("bloodType", bloodType);
       if (position) employee.set("position", position);
-      if (birthdate) employee.set("birthdate", birthdate);
+      if (birthdate) employee.set("birthdate", new Date(birthdate));
       if (age) employee.set("age", age);
       if (nationality) employee.set("nationality", nationality);
       if (address) employee.set("address", address);
