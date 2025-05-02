@@ -71,6 +71,7 @@ Parse.Cloud.define("myAccount", async (request) => {
       status: users.get("status"),
       address: users.get("address"),
       contact: users.get("contact"),
+      bod: users.get("bod"),
     };
 
     return userInfo;
@@ -129,7 +130,7 @@ Parse.Cloud.define("updateMyAccount", async (request) => {
 
 
   Parse.Cloud.define('addOrUpdateMember', async (request) => {
-    const { id, name, role, image } = request.params;
+    const { id, name, memberType, role, image } = request.params;
   
     try {
       let TeamMember = Parse.Object.extend('Organization');
@@ -153,6 +154,7 @@ Parse.Cloud.define("updateMyAccount", async (request) => {
       // Set the properties
       teamMember.set('name', name);
       teamMember.set('role', role);
+      teamMember.set('memberType', memberType);
   
       // Only update image if a new one is provided
       if (image) {
@@ -169,6 +171,7 @@ Parse.Cloud.define("updateMyAccount", async (request) => {
           objectId: teamMember.id,
           name: teamMember.get('name'),
           role: teamMember.get('role'),
+          memberType: teamMember.get('memberType'),
           image: teamMember.get('image')
         }
       };
