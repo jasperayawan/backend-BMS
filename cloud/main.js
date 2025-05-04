@@ -81,19 +81,37 @@ Parse.Cloud.define("myAccount", async (request) => {
 });
 
 Parse.Cloud.define("updateMyAccount", async (request) => {
-  const { id, name, email, username, password, address, contact, profilePicture } = request.params;
+  const { id, name, email, username, password, address, contact, profilePicture, oldPassword } = request.params;
   
   try {
     const query = new Parse.Query(Parse.User);
     const user = await query.get(id, { useMasterKey: true });
+    const currentUser = request.user;
+
+    if (!currentUser) {
+      throw new Error("User not authenticated.");
+    }
+    let passwordUpdated = false;
 
     // Update user fields if provided
     if (name) user.set("name", name);
     if (email) user.set("email", email);
     if (username) user.set("username", username);
-    if (password) user.set("password", password);
+    if (oldPassword) {
+      try {
+        // Attempt to log in with the old password
+        await Parse.User.logIn(currentUser.get("username"), oldPassword, { useMasterKey: true });
+  
+        user.set("password", password);
+        passwordUpdated = true;
+      } catch (error) {
+        // Handle login failure (e.g., incorrect old password)
+        throw new Parse.Error(Parse.Error.VALIDATION_ERROR, "Old password is incorrect. try again.");
+      }
+    }
     if (address) user.set("address", address);
     if (contact) user.set("contact", contact);
+    
 
     // Handle profile picture upload if provided
     if (profilePicture) {
@@ -105,7 +123,9 @@ Parse.Cloud.define("updateMyAccount", async (request) => {
 
     return {
       success: true,
-      message: "Account updated successfully",
+      message: oldPassword
+        ? "Password updated successfully"
+        : "Account updated successfully",
       user: {
         id: user.id,
         profilePicture: user.get("profilePicture"),
